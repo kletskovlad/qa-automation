@@ -31,3 +31,7 @@ describe('isLeapYear', () => {
     expect(() => isLeapYear(2024.5)).toThrow('INVALID_YEAR');
   });
 });
+
+it('викидає помилку для NaN', () => {
+  expect(() => isLeapYear(NaN)).toThrow('INVALID_YEAR');
+});

@@ -56,7 +56,7 @@ describe('calcDiscountRate', () => {
   ])(
     'обчислює знижку для рівня $tier',
     ({ tier, expected }) => {
-      expect(calcDiscountRate(1000, tier)).toBeCloseTo(expected);
+      expect(calcDiscountRate(tier, 1000)).toBeCloseTo(expected);
     },
   );
 
@@ -67,18 +67,18 @@ describe('calcDiscountRate', () => {
   ])(
     'перевіряє поріг великого замовлення $subtotal',
     ({ subtotal, expected }) => {
-      expect(calcDiscountRate(subtotal, 'basic'))
+      expect(calcDiscountRate('basic', subtotal))
         .toBeCloseTo(expected);
     },
   );
 
   it('обмежує максимальну знижку до 25%', () => {
-    expect(calcDiscountRate(3000, 'gold', 0.5))
+    expect(calcDiscountRate('gold', 3000, 0.5))
       .toBeCloseTo(0.25);
   });
 
   it('викидає NEGATIVE_PROMO для відʼємного промокоду', () => {
-    expect(() => calcDiscountRate(1000, 'basic', -0.1))
+    expect(() => calcDiscountRate('basic', 1000, -0.1))
       .toThrow('NEGATIVE_PROMO');
   });
 });

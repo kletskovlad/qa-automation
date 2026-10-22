@@ -47,8 +47,8 @@ export function calcSubtotal(items: OrderItem[]): number {
 }
 
 export function calcDiscountRate(
-  subtotal: number,
   tier: Tier,
+  subtotal: number,
   promoDiscount = 0,
 ): number {
   if (promoDiscount < 0) {
@@ -78,8 +78,8 @@ export function calcOrderTotal(
   const subtotal = calcSubtotal(items);
 
   const discountRate = calcDiscountRate(
-    subtotal,
     tier,
+    subtotal,
     promoDiscount,
   );
 
@@ -92,6 +92,11 @@ export function calcOrderTotal(
   return round2(totalAfterDiscount + shipping);
 }
 
+/**
+ * Розбиває суму на задану кількість платежів.
+ * Сума округлюється до копійок.
+ * Залишкові копійки додаються до перших платежів.
+ */
 export function splitPayment(total: number, parts: number): number[] {
   if (!Number.isInteger(parts) || parts < 1) {
     throw new Error('INVALID_PARTS');

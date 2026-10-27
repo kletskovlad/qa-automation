@@ -1,3 +1,5 @@
+const FIVE_PERCENT_DISCOUNT = 0.05;
+
 export function calcLoyaltyDiscount(
   years: number,
   isBirthday: boolean,
@@ -11,7 +13,7 @@ export function calcLoyaltyDiscount(
   }
 
   if (years <= 3) {
-    return 0.05;
+    return FIVE_PERCENT_DISCOUNT;
   }
 
   return 0;

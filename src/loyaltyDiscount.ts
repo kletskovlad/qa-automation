@@ -2,5 +2,9 @@ export function calcLoyaltyDiscount(
   years: number,
   isBirthday: boolean,
 ): number {
-  throw new Error('INVALID_YEARS');
+  if (!Number.isFinite(years) || years < 0) {
+    throw new Error('INVALID_YEARS');
+  }
+
+  return 0;
 }

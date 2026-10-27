@@ -10,17 +10,21 @@ export function calcLoyaltyDiscount(
     throw new Error('INVALID_YEARS');
   }
 
+  let discount = 0;
+
   if (years < 1) {
-    return 0;
+    discount = 0;
+  } else if (years <= 3) {
+    discount = FIVE_PERCENT_DISCOUNT;
+  } else if (years <= 5) {
+    discount = TEN_PERCENT_DISCOUNT;
+  } else {
+    discount = FIFTEEN_PERCENT_DISCOUNT;
   }
 
-  if (years <= 3) {
-    return FIVE_PERCENT_DISCOUNT;
+  if (isBirthday) {
+    discount = discount * 2;
   }
 
-  if (years <= 5) {
-    return TEN_PERCENT_DISCOUNT;
-  }
-
-  return FIFTEEN_PERCENT_DISCOUNT;
+  return discount;
 }

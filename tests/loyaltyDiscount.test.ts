@@ -61,4 +61,21 @@ it.each([
     }
   );
 
+  it.each([
+    { years: 0, expected: 0 },
+    { years: 0.5, expected: 0 },
+    { years: 1, expected: 0.10 },
+    { years: 2, expected: 0.10 },
+    { years: 3, expected: 0.10 },
+    { years: 4, expected: 0.20 },
+    { years: 5, expected: 0.20 },
+    { years: 6, expected: 0.30 },
+    { years: 10, expected: 0.30 },
+  ])(
+    'подвоює знижку в день народження для стажу $years років',
+    ({ years, expected }) => {
+      expect(calcLoyaltyDiscount(years, true)).toBe(expected);
+    }
+  );
+
 });

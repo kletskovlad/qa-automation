@@ -16,5 +16,9 @@ export function calcLoyaltyDiscount(
     return FIVE_PERCENT_DISCOUNT;
   }
 
+  if (years <= 5) {
+    return 0.10;
+  }
+
   return 0;
 }

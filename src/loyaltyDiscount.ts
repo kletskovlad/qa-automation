@@ -1,5 +1,6 @@
 const FIVE_PERCENT_DISCOUNT = 0.05;
 const TEN_PERCENT_DISCOUNT = 0.10;
+const FIFTEEN_PERCENT_DISCOUNT = 0.15;
 
 export function calcLoyaltyDiscount(
   years: number,
@@ -21,5 +22,5 @@ export function calcLoyaltyDiscount(
     return TEN_PERCENT_DISCOUNT;
   }
 
-  return 0.15;
+  return FIFTEEN_PERCENT_DISCOUNT;
 }

@@ -21,5 +21,5 @@ export function calcLoyaltyDiscount(
     return TEN_PERCENT_DISCOUNT;
   }
 
-  return 0;
+  return 0.15;
 }

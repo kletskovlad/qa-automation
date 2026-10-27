@@ -48,4 +48,17 @@ it.each([
     }
   );
 
+  it.each([
+    { years: 5.01, expected: 0.15 },
+    { years: 5.5, expected: 0.15 },
+    { years: 6, expected: 0.15 },
+    { years: 10, expected: 0.15 },
+    { years: 25, expected: 0.15 },
+  ])(
+    'повертає знижку 15% для стажу $years років',
+    ({ years, expected }) => {
+      expect(calcLoyaltyDiscount(years, false)).toBe(expected);
+    }
+  );
+
 });

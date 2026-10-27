@@ -23,7 +23,7 @@ export function calcLoyaltyDiscount(
   }
 
   if (isBirthday) {
-    discount = discount * 2;
+    discount *= 2;
   }
 
   return discount;

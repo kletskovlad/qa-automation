@@ -92,4 +92,29 @@ describe('OrderService — заглушки й шпигуни', () => {
     expect(saved?.amountUah).toBeCloseTo(2050, 2);
     expect(fakeRepo.size).toBe(1);
   });
+
+  it('не зберігає замовлення й не надсилає листа, якщо курс недоступний', async () => {
+    const fakeRepo = new InMemoryOrderRepository();
+
+    rates.getRate = vi.fn().mockRejectedValue(
+      new Error('RATE_UNAVAILABLE'),
+    );
+
+    const service = new OrderService(
+      rates,
+      fakeRepo,
+      notifier,
+    );
+
+    await expect(
+      service.placeOrder({
+        id: 'A-5',
+        amountUsd: 100,
+        email: 'u@e.com',
+      }),
+    ).rejects.toThrow('RATE_UNAVAILABLE');
+
+    expect(fakeRepo.size).toBe(0);
+    expect(notifier.send).not.toHaveBeenCalled();
+  });
 });

@@ -9,6 +9,8 @@ import type {
   Notifier,
 } from '../src/order-service';
 
+import { InMemoryOrderRepository } from './fakes/in-memory-repository';
+
 describe('OrderService — заглушки й шпигуни', () => {
   let rates: RateProvider;
   let repo: OrderRepository;
@@ -68,5 +70,26 @@ describe('OrderService — заглушки й шпигуни', () => {
 
     expect(rates.getRate).not.toHaveBeenCalled();
     expect(repo.save).not.toHaveBeenCalled();
+  });
+
+  it('збережене замовлення можна прочитати зі сховища', async () => {
+    const fakeRepo = new InMemoryOrderRepository();
+
+    const service = new OrderService(
+      rates,
+      fakeRepo,
+      notifier,
+    );
+
+    await service.placeOrder({
+      id: 'A-4',
+      amountUsd: 50,
+      email: 'u@e.com',
+    });
+
+    const saved = await fakeRepo.findById('A-4');
+
+    expect(saved?.amountUah).toBeCloseTo(2050, 2);
+    expect(fakeRepo.size).toBe(1);
   });
 });

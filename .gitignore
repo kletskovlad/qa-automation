@@ -4,4 +4,4 @@ dist/
 .env
 .DS_Store
 *.log
-lab2-vitest/
+lab2-vitest//results/

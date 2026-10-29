@@ -1,0 +1,165 @@
+{
+  "info": {
+    "_postman_id": "a4c18dbc-63c4-4b5a-90d8-5fd01f0a31ba",
+    "name": "Orders API — Lab 5",
+    "description": "Лабораторна робота №5: демонстраційні запити Login → Create order → Get order для Express REST API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('статус 200', () => pm.response.to.have.status(200));",
+              "pm.test('accessToken повернуто', () => pm.expect(pm.response.json().accessToken).to.be.a('string').and.not.empty);",
+              "if (pm.response.code === 200 && typeof pm.response.json().accessToken === 'string') {",
+              "  pm.collectionVariables.set('token', pm.response.json().accessToken);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"bob@example.com\",\n  \"password\": \"Secret123\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Create order",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('статус 201', () => pm.response.to.have.status(201));",
+              "pm.test('сума з доставкою', () => pm.expect(pm.response.json().total).to.eql(560));",
+              "pm.test('правильна проміжна сума', () => pm.expect(pm.response.json().subtotal).to.eql(500));",
+              "pm.test('заголовок Location', () => pm.expect(pm.response.headers.get('Location')).to.eql(`/orders/${pm.response.json().id}`));",
+              "pm.test('ownerId не розкривається', () => pm.expect(pm.response.json()).not.to.have.property('ownerId'));",
+              "if (pm.response.code === 201 && typeof pm.response.json().id === 'string') {",
+              "  pm.collectionVariables.set('orderId', pm.response.json().id);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"items\": [\n    {\n      \"sku\": \"A\",\n      \"price\": 500,\n      \"qty\": 1\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "orders"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get order",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('статус 200', () => pm.response.to.have.status(200));",
+              "pm.test('повернуло створене замовлення', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('orderId')));",
+              "pm.test('сума збережена', () => pm.expect(pm.response.json().total).to.eql(560));",
+              "pm.test('ownerId не розкривається', () => pm.expect(pm.response.json()).not.to.have.property('ownerId'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/orders/{{orderId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "orders",
+            "{{orderId}}"
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "orderId",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

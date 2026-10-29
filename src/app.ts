@@ -56,7 +56,7 @@ export function createApp() {
   const tokens = new Map<string, string>();
   const orders = new Map<string, Order>();
 
-  // Авторизація користувача
+  // Авторизація
   app.post('/auth/login', (req, res) => {
     const user = USERS.find(
       (u) =>
@@ -74,12 +74,12 @@ export function createApp() {
 
     tokens.set(token, user.id);
 
-    res.json({
+    return res.json({
       accessToken: token,
     });
   });
 
-  // Перевірка доступу до замовлень
+  // Перевірка токена для маршрутів замовлень
   app.use('/orders', (req, res, next) => {
     const token = req.headers.authorization?.replace(
       'Bearer ',
@@ -103,7 +103,7 @@ export function createApp() {
     next();
   });
 
-  // Створення замовлення
+  // POST — створення замовлення
   app.post('/orders', (req, res) => {
     const items: Item[] = req.body?.items;
 
@@ -113,10 +113,10 @@ export function createApp() {
       });
     }
 
-    for (const i of items) {
+    for (const item of items) {
       if (
-        typeof i.price !== 'number' ||
-        i.price < 0
+        typeof item.price !== 'number' ||
+        item.price < 0
       ) {
         return res.status(400).json({
           code: 'INVALID_PRICE',
@@ -124,8 +124,8 @@ export function createApp() {
       }
 
       if (
-        !Number.isInteger(i.qty) ||
-        i.qty <= 0
+        !Number.isInteger(item.qty) ||
+        item.qty <= 0
       ) {
         return res.status(400).json({
           code: 'INVALID_QTY',
@@ -137,8 +137,7 @@ export function createApp() {
 
     const subtotal = round2(
       items.reduce(
-        (sum, item) =>
-          sum + item.price * item.qty,
+        (sum, item) => sum + item.price * item.qty,
         0,
       ),
     );
@@ -170,23 +169,23 @@ export function createApp() {
 
     orders.set(order.id, order);
 
-    res
+    return res
       .status(201)
       .location(`/orders/${order.id}`)
       .json(toPublic(order));
   });
 
-  // Отримання власних замовлень
+  // GET — список власних замовлень
   app.get('/orders', (_req, res) => {
     const mine = [...orders.values()].filter(
       (order) =>
         order.ownerId === res.locals.user.id,
     );
 
-    res.json(mine.map(toPublic));
+    return res.json(mine.map(toPublic));
   });
 
-  // Отримання замовлення за ID
+  // GET — замовлення за ID
   app.get('/orders/:id', (req, res) => {
     const order = orders.get(req.params.id);
 
@@ -199,10 +198,100 @@ export function createApp() {
       });
     }
 
-    res.json(toPublic(order));
+    return res.json(toPublic(order));
   });
 
-  // Видалення замовлення
+  // PUT — повна заміна позицій (ВАРІАНТ №5)
+  app.put('/orders/:id', (req, res) => {
+    const existing = orders.get(req.params.id);
+
+    if (
+      !existing ||
+      existing.ownerId !== res.locals.user.id
+    ) {
+      return res.status(404).json({
+        code: 'NOT_FOUND',
+      });
+    }
+
+    const items: Item[] = req.body?.items;
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        code: 'EMPTY_ORDER',
+      });
+    }
+
+    for (const item of items) {
+      if (
+        !item ||
+        typeof item.sku !== 'string' ||
+        item.sku.trim().length === 0
+      ) {
+        return res.status(400).json({
+          code: 'INVALID_SKU',
+        });
+      }
+
+      if (
+        typeof item.price !== 'number' ||
+        !Number.isFinite(item.price) ||
+        item.price < 0
+      ) {
+        return res.status(400).json({
+          code: 'INVALID_PRICE',
+        });
+      }
+
+      if (
+        !Number.isInteger(item.qty) ||
+        item.qty <= 0
+      ) {
+        return res.status(400).json({
+          code: 'INVALID_QTY',
+        });
+      }
+    }
+
+    const subtotal = round2(
+      items.reduce(
+        (sum, item) => sum + item.price * item.qty,
+        0,
+      ),
+    );
+
+    let rate = DISCOUNT[existing.tier];
+
+    if (subtotal >= 2000) {
+      rate += 0.05;
+    }
+
+    const afterDiscount = round2(
+      subtotal * (1 - Math.min(rate, 0.25)),
+    );
+
+    const total = round2(
+      afterDiscount +
+        (afterDiscount >= 1000 ? 0 : 60),
+    );
+
+    const updated: Order = {
+      ...existing,
+      items: items.map((item) => ({
+        sku: item.sku,
+        price: item.price,
+        qty: item.qty,
+      })),
+      subtotal,
+      total,
+    };
+
+    orders.set(existing.id, updated);
+
+    return res.status(200).json(toPublic(updated));
+  });
+
+  // DELETE — видалення замовлення
   app.delete('/orders/:id', (req, res) => {
     const order = orders.get(req.params.id);
 
@@ -217,7 +306,7 @@ export function createApp() {
 
     orders.delete(order.id);
 
-    res.status(204).end();
+    return res.status(204).end();
   });
 
   return app;

@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "a4c18dbc-63c4-4b5a-90d8-5fd01f0a31ba",
     "name": "Orders API — Lab 5",
-    "description": "Лабораторна робота №5: демонстраційні запити Login → Create order → Get order для Express REST API.",
+    "description": "Лабораторна робота №5, варіант 5: Login, Create, Get, три однакові PUT та контрольний GET для перевірки ідемпотентності.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -143,6 +143,208 @@
           ]
         }
       }
+    },
+    {
+      "name": "PUT 1 — replace items",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('статус 200', () => pm.response.to.have.status(200));",
+              "pm.test('JSON заголовок', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('повна заміна позицій', () => pm.expect(pm.response.json().items).to.eql([{ sku: 'NEW', price: 400, qty: 2 }, { sku: 'EXTRA', price: 300, qty: 1 }]));",
+              "pm.test('subtotal перераховано', () => pm.expect(pm.response.json().subtotal).to.eql(1100));",
+              "pm.test('total перераховано', () => pm.expect(pm.response.json().total).to.eql(1100));",
+              "pm.test('ownerId приховано', () => pm.expect(pm.response.json()).not.to.have.property('ownerId'));",
+              "if (pm.response.code === 200 && pm.response.json().total === 1100) {",
+              "  pm.collectionVariables.set('putBaseline', JSON.stringify(pm.response.json()));",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"items\": [\n    {\n      \"sku\": \"NEW\",\n      \"price\": 400,\n      \"qty\": 2\n    },\n    {\n      \"sku\": \"EXTRA\",\n      \"price\": 300,\n      \"qty\": 1\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders/{{orderId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "orders",
+            "{{orderId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "PUT 2 — identical retry",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('статус 200', () => pm.response.to.have.status(200));",
+              "pm.test('JSON заголовок', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('повна заміна позицій', () => pm.expect(pm.response.json().items).to.eql([{ sku: 'NEW', price: 400, qty: 2 }, { sku: 'EXTRA', price: 300, qty: 1 }]));",
+              "pm.test('subtotal перераховано', () => pm.expect(pm.response.json().subtotal).to.eql(1100));",
+              "pm.test('total перераховано', () => pm.expect(pm.response.json().total).to.eql(1100));",
+              "pm.test('ownerId приховано', () => pm.expect(pm.response.json()).not.to.have.property('ownerId'));",
+              "pm.test('повторний PUT ідентичний першому', () => pm.expect(pm.response.json()).to.eql(JSON.parse(pm.collectionVariables.get('putBaseline'))));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"items\": [\n    {\n      \"sku\": \"NEW\",\n      \"price\": 400,\n      \"qty\": 2\n    },\n    {\n      \"sku\": \"EXTRA\",\n      \"price\": 300,\n      \"qty\": 1\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders/{{orderId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "orders",
+            "{{orderId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "PUT 3 — identical retry",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('статус 200', () => pm.response.to.have.status(200));",
+              "pm.test('JSON заголовок', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+              "pm.test('повна заміна позицій', () => pm.expect(pm.response.json().items).to.eql([{ sku: 'NEW', price: 400, qty: 2 }, { sku: 'EXTRA', price: 300, qty: 1 }]));",
+              "pm.test('subtotal перераховано', () => pm.expect(pm.response.json().subtotal).to.eql(1100));",
+              "pm.test('total перераховано', () => pm.expect(pm.response.json().total).to.eql(1100));",
+              "pm.test('ownerId приховано', () => pm.expect(pm.response.json()).not.to.have.property('ownerId'));",
+              "pm.test('повторний PUT ідентичний першому', () => pm.expect(pm.response.json()).to.eql(JSON.parse(pm.collectionVariables.get('putBaseline'))));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"items\": [\n    {\n      \"sku\": \"NEW\",\n      \"price\": 400,\n      \"qty\": 2\n    },\n    {\n      \"sku\": \"EXTRA\",\n      \"price\": 300,\n      \"qty\": 1\n    }\n  ]\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/orders/{{orderId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "orders",
+            "{{orderId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Get order after PUT",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('статус 200', () => pm.response.to.have.status(200));",
+              "pm.test('збережений стан ідентичний результату PUT', () => pm.expect(pm.response.json()).to.eql(JSON.parse(pm.collectionVariables.get('putBaseline'))));",
+              "pm.test('після трьох PUT лише дві нові позиції', () => pm.expect(pm.response.json().items).to.have.length(2));",
+              "pm.test('новий total збережено', () => pm.expect(pm.response.json().total).to.eql(1100));",
+              "pm.test('ownerId приховано', () => pm.expect(pm.response.json()).not.to.have.property('ownerId'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/orders/{{orderId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "orders",
+            "{{orderId}}"
+          ]
+        }
+      }
     }
   ],
   "variable": [
@@ -158,6 +360,11 @@
     },
     {
       "key": "orderId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "putBaseline",
       "value": "",
       "type": "string"
     }

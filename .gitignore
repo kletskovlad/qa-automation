@@ -6,3 +6,9 @@ dist/
 *.log
 /lab2-vitest/
 /results/
+/playwright-report/
+/playwright-report-experiment/
+/playwright-report-diagnostic/
+/test-results/
+/test-results-experiment/
+/test-results-diagnostic/

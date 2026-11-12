@@ -9,7 +9,14 @@
     "coverage": "vitest run --coverage",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "start": "tsx src/server.ts"
+    "start": "tsx src/server.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:list": "playwright test --list",
+    "test:e2e:menu": "playwright test tests/e2e/menu.spec.ts",
+    "test:e2e:report": "playwright show-report",
+    "test:e2e:experiment": "playwright test --config playwright.experiment.config.ts",
+    "test:e2e:experiment:summary": "node scripts/summarize-waiting-experiment.mjs",
+    "test:e2e:diagnostics": "playwright test --config playwright.diagnostic.config.ts"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +24,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.0",
     "@types/express": "^5.0.6",
     "@types/node": "^26.6.5",
     "@types/supertest": "^7.2.1",
